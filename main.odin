@@ -9,12 +9,24 @@ Token_Type :: enum {
     Noun,
     Clitic, // like baa in billahi 
     Diacritic, // harakat
-    Root
+    Root,
+    Letter
 }
 
 Token :: struct {
-    rune_arr: []rune,
-    type: Token_Type
+    rune_: rune,
+    type: Token_Type,
+    diacritic_arr: []rune
+}
+
+process_rune :: proc(codepoint: rune) -> (token_type: Token_Type) {
+    switch codepoint {
+    case 1570..=1610:
+        token_type = .Letter
+    case 1611..=1618:
+        token_type = .Diacritic
+    } 
+    return 
 }
 
 main :: proc() {
@@ -24,19 +36,11 @@ main :: proc() {
     
     fmt.printf("Original string: %s\n", arabic_str)
     trimmed_str := strings.trim_space(arabic_str)
+    // Task 1 is just the below line.
     master_rune_arr:= utf8.string_to_runes(trimmed_str)
-    
-    // 1. Correct way to iterate: Decoding UTF-8 runes
-    // We cannot use a simple for loop over bytes, as that breaks UTF-8.
-    fmt.println("Iterating by rune (code point):")
-    
-    it := trimmed_str
-    
-    space_idx := 0
-    for r, index in it{
-        // Convert the rune to hex to see the underlying Unicode point
-        fmt.printf("Rune: %c (U+%04X)\n", r, r)
-        
+    for codepoint in master_rune_arr {
+        token_type := process_rune(codepoint)
+        fmt.println(token_type)
     }
     
     // 2. Measuring length correctly
